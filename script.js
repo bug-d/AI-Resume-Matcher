@@ -9,23 +9,29 @@ const hardSkills = [
   "javascript", "typescript", "react", "next.js", "vue", "node.js", "python", "sql",
   "postgresql", "mongodb", "redis", "docker", "kubernetes", "aws", "gcp", "azure",
   "html", "css", "tailwind", "graphql", "rest api", "testing", "jest", "playwright",
-  "ci/cd", "git", "supabase", "prisma", "figma", "analytics", "accessibility"
+  "ci/cd", "git", "supabase", "prisma", "figma", "analytics", "accessibility",
+  "前端", "后端", "全栈", "小程序", "数据分析", "数据可视化", "接口", "自动化",
+  "测试", "单元测试", "端到端测试", "数据库", "云服务", "部署", "性能优化", "可访问性"
 ];
 
 const softSkills = [
   "communication", "collaboration", "ownership", "leadership", "mentoring",
-  "stakeholder", "problem solving", "prioritization", "documentation", "cross-functional"
+  "stakeholder", "problem solving", "prioritization", "documentation", "cross-functional",
+  "沟通", "协作", "Owner 意识", "主人翁意识", "领导力", "辅导", "干系人", "问题解决",
+  "优先级", "文档", "跨职能"
 ];
 
 const roleSignals = [
   "dashboard", "workflow", "automation", "authentication", "authorization", "responsive",
   "performance", "scalability", "security", "data visualization", "real-time", "api",
-  "user research", "product", "metrics", "deployment", "monitoring", "error handling"
+  "user research", "product", "metrics", "deployment", "monitoring", "error handling",
+  "看板", "工作流", "登录", "鉴权", "权限", "响应式", "可扩展", "安全", "实时",
+  "用户研究", "产品", "指标", "监控", "错误处理", "业务流程"
 ];
 
-const sampleResume = `Frontend developer with 3 years of experience building React and TypeScript dashboards for B2B SaaS teams. Built reusable UI components, REST API integrations, responsive layouts, and analytics views. Improved page load performance by 38% through bundle splitting and caching. Worked with designers in Figma and backend engineers using PostgreSQL, Node.js, Git, and CI/CD. Owned documentation, QA checklists, and stakeholder demos.`;
+const sampleResume = `前端开发工程师，3 年 B2B SaaS 产品经验，长期使用 React 和 TypeScript 构建业务看板。负责可复用 UI 组件、REST API 接入、响应式页面和数据分析视图。通过代码分包和缓存策略将页面加载性能提升 38%。与设计师使用 Figma 协作，也和后端工程师配合 PostgreSQL、Node.js、Git 和 CI/CD 流程。独立维护文档、QA 检查清单和干系人演示。`;
 
-const sampleJob = `We are hiring a product-minded full-stack engineer to build workflow automation and data visualization tools. Requirements include React, TypeScript, Next.js, Node.js, PostgreSQL, REST APIs, authentication, testing with Playwright or Jest, responsive design, accessibility, performance optimization, and strong collaboration with cross-functional stakeholders. Experience with Supabase, Prisma, real-time updates, deployment, monitoring, and security is a plus.`;
+const sampleJob = `我们正在招聘一名有产品意识的全栈工程师，负责构建工作流自动化和数据可视化工具。岗位要求包括 React、TypeScript、Next.js、Node.js、PostgreSQL、REST API、登录鉴权、Playwright 或 Jest 测试、响应式设计、可访问性、性能优化，以及与跨职能干系人的高质量协作。有 Supabase、Prisma、实时更新、部署、监控和安全经验者优先。`;
 
 let latestReport = "";
 
@@ -59,9 +65,12 @@ function compareTerms(resumeText, jobText, terms) {
 function extractJobKeywords(resumeText, jobText) {
   const stopWords = new Set([
     "and", "the", "with", "for", "you", "our", "are", "this", "that", "will", "from",
-    "have", "has", "using", "into", "your", "role", "team", "work", "build", "tools"
+    "have", "has", "using", "into", "your", "role", "team", "work", "build", "tools",
+    "我们", "岗位", "要求", "负责", "包括", "以及", "优先", "经验", "能力", "相关"
   ]);
-  const words = jobText.match(/[a-z][a-z0-9+#.]{2,}/g) || [];
+  const englishWords = jobText.match(/[a-z][a-z0-9+#.]{2,}/g) || [];
+  const chineseWords = jobText.match(/[\u4e00-\u9fa5]{2,8}/g) || [];
+  const words = [...englishWords, ...chineseWords];
   const counts = words.reduce((acc, word) => {
     if (!stopWords.has(word)) acc[word] = (acc[word] || 0) + 1;
     return acc;
@@ -78,7 +87,7 @@ function analyze() {
   const jobText = normalize(jobInput.value);
 
   if (!resumeText || !jobText) {
-    renderEmpty("Paste both a resume and a job description to analyze the match.");
+    renderEmpty("请先粘贴简历和岗位描述，再开始分析匹配度。");
     return;
   }
 
@@ -98,34 +107,34 @@ function analyze() {
 
 function buildStrengths(hard, soft, role) {
   const items = [];
-  if (hard.matched.length) items.push(`Technical overlap: ${hard.matched.slice(0, 8).join(", ")}.`);
-  if (role.matched.length) items.push(`Role signals already visible: ${role.matched.slice(0, 6).join(", ")}.`);
-  if (soft.matched.length) items.push(`Collaboration language matches: ${soft.matched.slice(0, 5).join(", ")}.`);
-  if (!items.length) items.push("No strong keyword overlap yet. Add concrete technologies, outcomes, and role-specific terms from the job description.");
+  if (hard.matched.length) items.push(`技术关键词已有重合：${hard.matched.slice(0, 8).join("、")}。`);
+  if (role.matched.length) items.push(`岗位能力信号已经出现：${role.matched.slice(0, 6).join("、")}。`);
+  if (soft.matched.length) items.push(`协作类表述匹配：${soft.matched.slice(0, 5).join("、")}。`);
+  if (!items.length) items.push("目前还没有明显关键词重合。建议补充具体技术、业务结果和岗位描述中的核心词。");
   return items;
 }
 
 function buildGaps(hard, soft, role, keywordGaps) {
   const items = [];
-  if (hard.missing.length) items.push(`Add evidence for technical requirements: ${hard.missing.slice(0, 8).join(", ")}.`);
-  if (role.missing.length) items.push(`Show role experience around: ${role.missing.slice(0, 6).join(", ")}.`);
-  if (soft.missing.length) items.push(`Mirror soft-skill language where honest: ${soft.missing.slice(0, 5).join(", ")}.`);
-  if (keywordGaps.length) items.push(`Repeated JD keywords missing from resume: ${keywordGaps.join(", ")}.`);
-  if (!items.length) items.push("The resume covers the visible requirements well. Focus on measurable impact and concise wording.");
+  if (hard.missing.length) items.push(`补充这些技术要求的项目证据：${hard.missing.slice(0, 8).join("、")}。`);
+  if (role.missing.length) items.push(`补充这些岗位经验信号：${role.missing.slice(0, 6).join("、")}。`);
+  if (soft.missing.length) items.push(`在真实经历中体现这些软技能表述：${soft.missing.slice(0, 5).join("、")}。`);
+  if (keywordGaps.length) items.push(`岗位描述中出现但简历缺少的高频词：${keywordGaps.join("、")}。`);
+  if (!items.length) items.push("简历已经较好覆盖岗位要求。下一步重点是强化量化结果和表达精炼度。");
   return items;
 }
 
 function buildSuggestions(hard, soft, role, keywordGaps) {
-  const topTech = hard.missing.slice(0, 3).join(", ") || hard.matched.slice(0, 3).join(", ") || "the required stack";
-  const topRole = role.missing.slice(0, 2).join(" and ") || role.matched.slice(0, 2).join(" and ") || "the target workflow";
-  const topKeyword = keywordGaps.slice(0, 3).join(", ") || "business impact";
+  const topTech = hard.missing.slice(0, 3).join("、") || hard.matched.slice(0, 3).join("、") || "岗位要求的技术栈";
+  const topRole = role.missing.slice(0, 2).join("和") || role.matched.slice(0, 2).join("和") || "目标岗位的核心工作流";
+  const topKeyword = keywordGaps.slice(0, 3).join("、") || "业务影响";
 
   return [
-    `Add one bullet that ties ${topTech} to a shipped outcome, including a metric such as time saved, conversion lift, latency reduction, or adoption.`,
-    `Rewrite a project bullet to mention ${topRole} so the resume mirrors the job's day-to-day responsibilities.`,
-    `Include a short summary line that names the target role and the strongest matching skills instead of using a generic objective.`,
-    `If accurate, add keywords such as ${topKeyword} in natural project context rather than as a standalone keyword list.`,
-    "Move the most relevant project or experience to the top third of the resume so the match is visible in a fast screen."
+    `增加一条项目 bullet，把 ${topTech} 和上线结果关联起来，并写出节省时间、转化提升、延迟降低或使用人数等量化指标。`,
+    `改写一个项目经历，明确提到 ${topRole}，让简历更贴近岗位日常职责。`,
+    "把简历开头的简介改成目标岗位导向，突出最匹配的 3-4 个技能，而不是泛泛的求职目标。",
+    `如果经历真实相关，把 ${topKeyword} 等词自然放进项目语境中，不要单独堆关键词。`,
+    "把最相关的项目或经历移动到简历前三分之一，让筛选者快速看到匹配点。"
   ];
 }
 
@@ -166,9 +175,9 @@ function renderEmpty(message) {
   setMeter("hard", 0);
   setMeter("soft", 0);
   setMeter("role", 0);
-  renderList("#strengthList", ["Waiting for both inputs."]);
-  renderList("#gapList", ["No gaps calculated yet."]);
-  renderList("#suggestionList", ["Run an analysis to generate rewrite suggestions."]);
+  renderList("#strengthList", ["等待输入两段文本。"]);
+  renderList("#gapList", ["尚未计算缺口。"]);
+  renderList("#suggestionList", ["运行分析后会生成改写建议。"]);
   latestReport = "";
 }
 
@@ -196,28 +205,28 @@ function scoreColor(score) {
 }
 
 function scoreSummary(score) {
-  if (score >= 78) return "Strong match. Tighten the story with impact metrics and exact role language.";
-  if (score >= 55) return "Promising match. Address the priority gaps before applying.";
-  if (score >= 35) return "Partial match. Reframe experience around the job's core requirements.";
-  return "Low keyword alignment. Add relevant evidence or target a closer-fitting role.";
+  if (score >= 78) return "匹配度较强。建议继续补充量化结果和更贴近岗位的表达。";
+  if (score >= 55) return "有明显匹配基础。投递前优先补齐关键缺口。";
+  if (score >= 35) return "部分匹配。建议围绕岗位核心要求重新组织经历。";
+  return "关键词对齐较弱。需要补充相关证据，或选择更匹配的岗位。";
 }
 
 function buildReport(score, hard, soft, role, strengths, gaps, suggestions) {
   return [
-    "AI Resume Matcher Report",
-    `Match score: ${score}%`,
+    "AI 简历匹配器报告",
+    `匹配分数：${score}%`,
     "",
-    `Hard skills coverage: ${hard.coverage}%`,
-    `Soft skills coverage: ${soft.coverage}%`,
-    `Role signals coverage: ${role.coverage}%`,
+    `硬技能覆盖：${hard.coverage}%`,
+    `软技能覆盖：${soft.coverage}%`,
+    `岗位信号覆盖：${role.coverage}%`,
     "",
-    "Matched strengths:",
+    "匹配优势：",
     ...strengths.map((item) => `- ${item}`),
     "",
-    "Priority gaps:",
+    "优先补齐项：",
     ...gaps.map((item) => `- ${item}`),
     "",
-    "Rewrite suggestions:",
+    "改写建议：",
     ...suggestions.map((item, index) => `${index + 1}. ${item}`)
   ].join("\n");
 }
@@ -235,9 +244,9 @@ async function copyLatestReport() {
     document.execCommand("copy");
     helper.remove();
   }
-  copyReport.textContent = "Copied";
+  copyReport.textContent = "已复制";
   setTimeout(() => {
-    copyReport.textContent = "Copy";
+    copyReport.textContent = "复制";
   }, 1300);
 }
 
@@ -248,9 +257,9 @@ function downloadLatestReport() {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "resume-match-report.txt";
+  anchor.download = "简历匹配报告.txt";
   anchor.click();
   URL.revokeObjectURL(url);
 }
 
-renderEmpty("Paste both documents and run an analysis.");
+renderEmpty("粘贴两段文本后运行分析。");

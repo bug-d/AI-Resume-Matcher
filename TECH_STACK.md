@@ -1,34 +1,34 @@
-# Tech Stack
+# 技术栈
 
-## Runtime
+## 运行环境
 
-- Browser runtime.
-- Optional local static server for verification.
+- 浏览器运行时。
+- 可选使用本地静态服务器做验证。
 
-## Frameworks And Libraries
+## 框架和库
 
-- HTML, CSS, and vanilla JavaScript.
-- No package manager dependencies in the MVP.
+- HTML、CSS、Vanilla JavaScript。
+- MVP 不使用包管理器依赖。
 
-## Commands
+## 命令
 
 ```powershell
-# Install:
-# No install step required.
+# 安装：
+# 无需安装。
 
-# Run:
+# 运行：
 python -m http.server 4173
 
-# Test:
-# Open http://localhost:4173 and use the sample analysis flow.
+# 测试：
+# 打开 http://localhost:4173 并运行示例分析流程。
 ```
 
-## Environment Variables
+## 环境变量
 
-- None for the MVP.
-- Future optional API version may use `OPENAI_API_KEY` on a server only.
+- MVP 无环境变量。
+- 后续可选 API 版本只能在服务端使用 `OPENAI_API_KEY`。
 
-## External Services
+## 外部服务
 
-- None for the MVP.
-- GitHub Pages is the intended deployment target.
+- MVP 不依赖外部服务。
+- 目标部署平台是 GitHub Pages。

@@ -1,55 +1,55 @@
-# AI Resume Matcher
+# AI 简历匹配器
 
-A privacy-friendly resume and job description analyzer built as a portfolio-ready static web app.
+一个注重隐私的简历与岗位描述匹配分析工具，适合作为前端/全栈作品集项目展示。
 
-## What It Does
+## 功能
 
-- Compares pasted resume text with a target job description.
-- Scores role fit across skills, experience signals, and job-specific keywords.
-- Highlights matched strengths and missing keywords.
-- Generates practical resume rewrite suggestions.
-- Exports a plain-text report for quick review.
+- 对比用户粘贴的简历文本和目标岗位描述。
+- 从硬技能、软技能、岗位信号和高频关键词维度计算匹配度。
+- 展示匹配优势和优先补齐项。
+- 生成可执行的简历改写建议。
+- 支持复制或下载纯文本分析报告。
 
-## Why This Project Exists
+## 项目价值
 
-This project is designed as a compact interview portfolio piece. It demonstrates product thinking, front-end implementation, local data processing, responsive UI, and a clear upgrade path toward a full AI-assisted career tool.
+这个项目面向求职场景，能在面试中展示产品思维、前端实现能力、本地数据处理、响应式 UI 设计，以及后续接入 AI 能力的扩展空间。
 
-## Tech Stack
+## 技术栈
 
 - HTML
 - CSS
 - Vanilla JavaScript
-- No backend and no package dependencies
+- 无后端、无包管理依赖
 
-## Privacy
+## 隐私说明
 
-The MVP runs entirely in the browser. It does not upload resume content, call an external API, or store user data on a server.
+当前 MVP 完全在浏览器本地运行。简历内容不会上传到服务器，也不会调用任何外部 API。
 
-## Run Locally
+## 本地运行
 
-Open `index.html` directly, or run a small static server:
+可以直接打开 `index.html`，也可以启动一个静态服务：
 
 ```powershell
 python -m http.server 4173
 ```
 
-Then visit:
+然后访问：
 
 ```text
 http://localhost:4173
 ```
 
-## Deploy To GitHub Pages
+## 部署到 GitHub Pages
 
-1. Push this folder to a GitHub repository.
-2. In repository settings, enable GitHub Pages.
-3. Choose the branch and root folder as the Pages source.
-4. Open the generated Pages URL.
+1. 将项目推送到 GitHub 仓库。
+2. 进入仓库设置并启用 GitHub Pages。
+3. 选择 `main` 分支和根目录作为发布源。
+4. 打开 GitHub 生成的 Pages 地址。
 
-## Roadmap
+## 后续路线
 
-- Add PDF/DOCX text extraction.
-- Add optional OpenAI-powered rewrite mode through a server-side API route.
-- Save comparison history locally.
-- Add shareable anonymized reports.
-- Add unit tests for scoring rules.
+- 支持 PDF/DOCX 文本提取。
+- 通过服务端 API 增加可选的 AI 改写模式。
+- 在本地保存历史分析记录。
+- 生成可分享的匿名报告。
+- 为评分规则增加单元测试。

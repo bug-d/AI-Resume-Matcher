@@ -1,22 +1,23 @@
-# Project: ai-resume-matcher
+# 项目：ai-resume-matcher
 
-## Overview
+## 概览
 
-- Purpose: Portfolio-ready web app that compares a resume against a job description and produces a practical interview/job-application improvement report.
-- Current status: Static MVP in progress.
-- Owner/user context: User wants small vibecoding projects published to GitHub as interview portfolio pieces.
-- Important links: Local project folder only for now.
+- 目的：构建一个作品集级 Web 应用，对比简历和岗位描述，并生成实用的求职优化报告。
+- 当前状态：静态 MVP 已完成，正在中文化。
+- 用户背景：用户想做一些简单但可发布到 GitHub 的 vibecoding 项目，用于提升面试竞争力。
+- 重要链接：当前仅有本地项目目录。
 
-## Scope
+## 范围
 
-- In scope: Client-side resume/JD text analysis, match score, skill gaps, suggested resume bullets, exportable report, polished README.
-- Out of scope: Storing secrets, paid API calls, user accounts, uploaded file parsing in the first MVP.
+- 范围内：浏览器端简历/JD 文本分析、匹配分数、技能缺口、简历 bullet 改写建议、可导出报告、清晰 README。
+- 范围外：存储密钥、付费 API 调用、用户账号、首版中的文件上传解析。
 
-## Key Decisions
+## 关键决策
 
-- Build first version as dependency-free static HTML/CSS/JS so it can run locally and deploy to GitHub Pages without network setup.
-- Keep analysis transparent and heuristic-based; later versions can add OpenAI API integration behind an optional backend.
+- 首版使用无依赖的静态 HTML/CSS/JS，便于本地运行和部署到 GitHub Pages。
+- 分析逻辑保持透明，采用启发式规则；后续可以在服务端增加可选 OpenAI API 能力。
+- 用户要求改为中文后，界面、示例、报告和文档统一中文化，代码变量名保持英文。
 
-## Open Questions
+## 待确认问题
 
-- Whether the final GitHub repository should be public under the user's main GitHub account or an organization.
+- 最终 GitHub 仓库是发布到用户个人账号还是组织账号。

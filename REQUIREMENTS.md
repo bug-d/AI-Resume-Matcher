@@ -1,33 +1,34 @@
-# Requirements
+# 需求
 
-## User Goals
+## 用户目标
 
-- Create a simple but credible portfolio project for GitHub.
-- Demonstrate product sense, front-end polish, data handling, and explainable AI-style analysis.
+- 创建一个简单但可信的 GitHub 作品集项目。
+- 展示产品思维、前端完成度、数据处理能力和可解释的 AI 风格分析。
+- 中文用户和中文岗位描述应能直接使用。
 
-## Functional Requirements
+## 功能需求
 
-- Let users paste resume text and job description text.
-- Analyze overlap across hard skills, soft skills, role keywords, and experience signals.
-- Display a match score, strengths, gaps, and actionable rewrite suggestions.
-- Generate improved resume bullet suggestions based on the target role.
-- Allow copying or downloading a report.
+- 支持用户粘贴简历文本和岗位描述文本。
+- 分析硬技能、软技能、岗位关键词和经验信号的重合度。
+- 展示匹配分数、优势、缺口和可执行的改写建议。
+- 根据目标岗位生成简历 bullet 改写方向。
+- 支持复制或下载分析报告。
 
-## Non-Functional Requirements
+## 非功能需求
 
-- Must run without backend services or package installation.
-- Must be responsive on desktop and mobile.
-- Must avoid sending user resume content to any external service in the MVP.
-- Must be easy to publish on GitHub Pages.
+- 无需后端服务或依赖安装即可运行。
+- 桌面端和移动端都要可用。
+- MVP 不得把用户简历内容发送到外部服务。
+- 易于部署到 GitHub Pages。
 
-## Constraints
+## 约束
 
-- Network access may require approval in this Codex workspace, so first implementation avoids external dependencies.
-- No secrets or API keys in repository files.
+- Codex 工作区的网络访问可能需要审批，因此首版避免外部依赖。
+- 仓库文件不得包含密钥或 API Key。
 
-## Acceptance Criteria
+## 验收标准
 
-- Opening `index.html` shows a complete usable app.
-- Demo sample button fills realistic input.
-- Analysis updates from user input and produces non-empty results.
-- README explains purpose, features, local usage, and roadmap.
+- 打开 `index.html` 能看到完整可用的中文应用。
+- “载入示例”按钮能填充真实感较强的中文输入。
+- 分析结果会随用户输入变化，并产生非空输出。
+- README 说明项目用途、功能、本地运行方式和后续路线。

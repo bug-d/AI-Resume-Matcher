@@ -1,26 +1,27 @@
-# Project SOP
+# 项目 SOP
 
-## Start Checklist
+## 开始检查
 
-1. Read this project's memory documents.
-2. Check current repo status before editing if Git is initialized.
-3. Identify run/test commands from `TECH_STACK.md`.
+1. 阅读本项目记忆文档。
+2. 如果已经初始化 Git，编辑前检查当前仓库状态。
+3. 从 `TECH_STACK.md` 确认运行和验证命令。
 
-## Development Rules
+## 开发规则
 
-- Keep the MVP deployable as static files.
-- Keep user-entered resume/JD content local unless a future backend explicitly handles privacy and secrets.
-- Prioritize visible portfolio value: screenshots, demo flow, README clarity, and clean code structure.
+- 保持 MVP 可作为静态文件部署。
+- 用户输入的简历/JD 内容默认只在本地处理；未来若增加后端，必须明确处理隐私和密钥。
+- 优先提升作品集可见价值：截图、演示流程、README 清晰度和代码结构。
+- 面向中文求职场景时，界面、示例数据、报告和 README 应统一中文。
 
-## Verification Checklist
+## 验证清单
 
-- Open the app through a local static server.
-- Run the sample analysis.
-- Confirm copy/download report actions work where browser permissions allow.
-- Check narrow viewport layout manually or via screenshot.
+- 通过本地静态服务器打开应用。
+- 运行示例分析。
+- 确认复制/下载报告功能在浏览器权限允许时可用。
+- 检查窄屏布局，避免中文按钮和标题溢出。
 
-## Release Or Delivery Checklist
+## 发布交付清单
 
-- Ensure README includes GitHub Pages deployment steps.
-- Ensure no secrets or local-only paths are required by the app.
-- Ensure project memory reflects important decisions and known issues.
+- README 包含 GitHub Pages 部署步骤。
+- 项目不依赖密钥或本地专有路径。
+- 项目记忆文档记录关键决策和已知问题。

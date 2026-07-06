@@ -1,18 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AI Resume Matcher</title>
+    <title>AI 简历匹配器</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <header class="topbar">
       <div>
-        <p class="eyebrow">Portfolio Project</p>
-        <h1>AI Resume Matcher</h1>
+        <p class="eyebrow">作品集项目</p>
+        <h1>AI 简历匹配器</h1>
       </div>
-      <div class="status-pill">Local analysis</div>
+      <div class="status-pill">本地分析</div>
     </header>
 
     <main class="app-shell">
@@ -20,71 +20,71 @@
         <div class="panel input-panel">
           <div class="panel-header">
             <div>
-              <h2>Resume</h2>
-              <p>Paste the resume or profile you want to evaluate.</p>
+              <h2>简历</h2>
+              <p>粘贴你想评估的简历或个人介绍。</p>
             </div>
-            <button class="ghost-button" id="loadSample" type="button">Load sample</button>
+            <button class="ghost-button" id="loadSample" type="button">载入示例</button>
           </div>
-          <textarea id="resumeInput" spellcheck="true" placeholder="Paste resume text here..."></textarea>
+          <textarea id="resumeInput" spellcheck="true" placeholder="在这里粘贴简历文本..."></textarea>
         </div>
 
         <div class="panel input-panel">
           <div class="panel-header">
             <div>
-              <h2>Job Description</h2>
-              <p>Paste the target role description and requirements.</p>
+              <h2>岗位描述</h2>
+              <p>粘贴目标岗位的职责和要求。</p>
             </div>
-            <button class="primary-button" id="analyzeButton" type="button">Analyze match</button>
+            <button class="primary-button" id="analyzeButton" type="button">分析匹配度</button>
           </div>
-          <textarea id="jobInput" spellcheck="true" placeholder="Paste job description here..."></textarea>
+          <textarea id="jobInput" spellcheck="true" placeholder="在这里粘贴岗位描述..."></textarea>
         </div>
       </section>
 
       <section class="results-grid" aria-live="polite">
         <article class="score-card">
           <div>
-            <p class="eyebrow">Match score</p>
+            <p class="eyebrow">匹配分数</p>
             <strong id="scoreValue">--</strong>
           </div>
           <div class="score-ring" id="scoreRing" aria-hidden="true"></div>
-          <p id="scoreSummary">Paste both documents and run an analysis.</p>
+          <p id="scoreSummary">粘贴两段文本后运行分析。</p>
         </article>
 
         <article class="panel">
-          <h2>Skill Coverage</h2>
+          <h2>能力覆盖</h2>
           <div class="meter-row">
-            <span>Hard skills</span>
+            <span>硬技能</span>
             <div class="meter"><span id="hardMeter"></span></div>
             <b id="hardValue">0%</b>
           </div>
           <div class="meter-row">
-            <span>Soft skills</span>
+            <span>软技能</span>
             <div class="meter"><span id="softMeter"></span></div>
             <b id="softValue">0%</b>
           </div>
           <div class="meter-row">
-            <span>Role signals</span>
+            <span>岗位信号</span>
             <div class="meter"><span id="roleMeter"></span></div>
             <b id="roleValue">0%</b>
           </div>
         </article>
 
         <article class="panel list-panel">
-          <h2>Matched Strengths</h2>
+          <h2>匹配优势</h2>
           <ul id="strengthList"></ul>
         </article>
 
         <article class="panel list-panel">
-          <h2>Priority Gaps</h2>
+          <h2>优先补齐项</h2>
           <ul id="gapList"></ul>
         </article>
 
         <article class="panel suggestions">
           <div class="panel-header compact">
-            <h2>Rewrite Suggestions</h2>
+            <h2>改写建议</h2>
             <div class="button-row">
-              <button class="ghost-button" id="copyReport" type="button">Copy</button>
-              <button class="ghost-button" id="downloadReport" type="button">Download</button>
+              <button class="ghost-button" id="copyReport" type="button">复制</button>
+              <button class="ghost-button" id="downloadReport" type="button">下载</button>
             </div>
           </div>
           <ol id="suggestionList"></ol>
