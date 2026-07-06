@@ -6,3 +6,12 @@ build/
 .env
 .env.*
 *.log
+
+# 本地 Codex 项目记忆文件，不作为公开作品集内容提交
+PROJECT.md
+REQUIREMENTS.md
+TECH_STACK.md
+DEV_LOG.md
+PITFALLS.md
+SOP.md
+RETRO.md
