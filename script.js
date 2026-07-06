@@ -4,6 +4,15 @@ const analyzeButton = document.querySelector("#analyzeButton");
 const loadSample = document.querySelector("#loadSample");
 const copyReport = document.querySelector("#copyReport");
 const downloadReport = document.querySelector("#downloadReport");
+const resumePdfInput = document.querySelector("#resumePdfInput");
+const jobPdfInput = document.querySelector("#jobPdfInput");
+const semanticValue = document.querySelector("#semanticValue");
+const semanticStatus = document.querySelector("#semanticStatus");
+const semanticSummary = document.querySelector("#semanticSummary");
+
+const AI_MODEL_ID = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
+const AI_MODEL_CDN = "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js";
+const PDF_WORKER_URL = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
 const hardSkills = [
   "javascript", "typescript", "react", "next.js", "vue", "node.js", "python", "sql",
@@ -34,6 +43,8 @@ const sampleResume = `前端开发工程师，3 年 B2B SaaS 产品经验，长�
 const sampleJob = `我们正在招聘一名有产品意识的全栈工程师，负责构建工作流自动化和数据可视化工具。岗位要求包括 React、TypeScript、Next.js、Node.js、PostgreSQL、REST API、登录鉴权、Playwright 或 Jest 测试、响应式设计、可访问性、性能优化，以及与跨职能干系人的高质量协作。有 Supabase、Prisma、实时更新、部署、监控和安全经验者优先。`;
 
 let latestReport = "";
+let semanticModelPromise = null;
+let latestSemantic = null;
 
 loadSample.addEventListener("click", () => {
   resumeInput.value = sampleResume;
@@ -44,6 +55,8 @@ loadSample.addEventListener("click", () => {
 analyzeButton.addEventListener("click", analyze);
 copyReport.addEventListener("click", copyLatestReport);
 downloadReport.addEventListener("click", downloadLatestReport);
+resumePdfInput.addEventListener("change", () => handlePdfUpload(resumePdfInput, resumeInput, "简历"));
+jobPdfInput.addEventListener("change", () => handlePdfUpload(jobPdfInput, jobInput, "岗位描述"));
 
 function normalize(text) {
   return text.toLowerCase().replace(/\s+/g, " ").trim();
@@ -82,7 +95,7 @@ function extractJobKeywords(resumeText, jobText) {
     .slice(0, 8);
 }
 
-function analyze() {
+async function analyze() {
   const resumeText = normalize(resumeInput.value);
   const jobText = normalize(jobInput.value);
 
@@ -96,13 +109,26 @@ function analyze() {
   const role = compareTerms(resumeText, jobText, roleSignals);
   const keywordGaps = extractJobKeywords(resumeText, jobText);
 
-  const score = calculateScore(hard, soft, role);
+  const ruleScore = calculateScore(hard, soft, role);
   const strengths = buildStrengths(hard, soft, role);
   const gaps = buildGaps(hard, soft, role, keywordGaps);
   const suggestions = buildSuggestions(hard, soft, role, keywordGaps);
 
-  latestReport = buildReport(score, hard, soft, role, strengths, gaps, suggestions);
-  renderResults(score, hard, soft, role, strengths, gaps, suggestions);
+  latestSemantic = null;
+  latestReport = buildReport(ruleScore, hard, soft, role, strengths, gaps, suggestions, null);
+  renderResults(ruleScore, hard, soft, role, strengths, gaps, suggestions, null);
+
+  try {
+    setSemanticState("--", "正在加载免费本地 AI 模型...", "模型首次加载需要下载文件，之后浏览器会缓存。");
+    const semantic = await analyzeSemanticMatch(resumeText, jobText);
+    latestSemantic = semantic;
+    const finalScore = calculateFinalScore(ruleScore, semantic.score);
+    latestReport = buildReport(finalScore, hard, soft, role, strengths, gaps, suggestions, semantic);
+    renderResults(finalScore, hard, soft, role, strengths, gaps, suggestions, semantic);
+  } catch (error) {
+    console.error(error);
+    setSemanticState("--", "AI 模型暂时不可用", "已保留规则分析结果。可能是模型 CDN 无法访问、浏览器限制或网络较慢。");
+  }
 }
 
 function buildStrengths(hard, soft, role) {
@@ -155,10 +181,10 @@ function calculateScore(hard, soft, role) {
   return Math.round(weightedScore / totalWeight);
 }
 
-function renderResults(score, hard, soft, role, strengths, gaps, suggestions) {
+function renderResults(score, hard, soft, role, strengths, gaps, suggestions, semantic) {
   document.querySelector("#scoreValue").textContent = `${score}%`;
   document.querySelector("#scoreRing").style.background = `conic-gradient(${scoreColor(score)} ${score * 3.6}deg, #dce6eb 0deg)`;
-  document.querySelector("#scoreSummary").textContent = scoreSummary(score);
+  document.querySelector("#scoreSummary").textContent = scoreSummary(score, semantic);
 
   setMeter("hard", hard.coverage);
   setMeter("soft", soft.coverage);
@@ -166,6 +192,7 @@ function renderResults(score, hard, soft, role, strengths, gaps, suggestions) {
   renderList("#strengthList", strengths, "is-hit");
   renderList("#gapList", gaps, "is-gap");
   renderList("#suggestionList", suggestions);
+  renderSemantic(semantic);
 }
 
 function renderEmpty(message) {
@@ -178,7 +205,9 @@ function renderEmpty(message) {
   renderList("#strengthList", ["等待输入两段文本。"]);
   renderList("#gapList", ["尚未计算缺口。"]);
   renderList("#suggestionList", ["运行分析后会生成改写建议。"]);
+  setSemanticState("--", "点击分析后加载免费本地 AI 模型。", "AI 模型会在浏览器中比较简历和岗位描述的语义接近度。");
   latestReport = "";
+  latestSemantic = null;
 }
 
 function setMeter(id, value) {
@@ -204,22 +233,32 @@ function scoreColor(score) {
   return "#b91c1c";
 }
 
-function scoreSummary(score) {
-  if (score >= 78) return "匹配度较强。建议继续补充量化结果和更贴近岗位的表达。";
-  if (score >= 55) return "有明显匹配基础。投递前优先补齐关键缺口。";
+function scoreSummary(score, semantic) {
+  if (semantic) return `综合规则覆盖和 AI 语义相似度后，当前匹配度为 ${score}%。`;
+  if (score >= 78) return "规则匹配度较强。AI 模型加载完成后会补充语义分数。";
+  if (score >= 55) return "有明显匹配基础。AI 模型加载完成后会补充语义分数。";
   if (score >= 35) return "部分匹配。建议围绕岗位核心要求重新组织经历。";
   return "关键词对齐较弱。需要补充相关证据，或选择更匹配的岗位。";
 }
 
-function buildReport(score, hard, soft, role, strengths, gaps, suggestions) {
-  return [
+function buildReport(score, hard, soft, role, strengths, gaps, suggestions, semantic) {
+  const report = [
     "AI 简历匹配器报告",
-    `匹配分数：${score}%`,
+    `综合匹配分数：${score}%`,
     "",
     `硬技能覆盖：${hard.coverage}%`,
     `软技能覆盖：${soft.coverage}%`,
     `岗位信号覆盖：${role.coverage}%`,
-    "",
+  ];
+
+  if (semantic) {
+    report.push(`AI 语义匹配：${semantic.score}%`, `AI 判断：${semantic.summary}`, "");
+  } else {
+    report.push("AI 语义匹配：未完成", "");
+  }
+
+  return [
+    ...report,
     "匹配优势：",
     ...strengths.map((item) => `- ${item}`),
     "",
@@ -231,8 +270,110 @@ function buildReport(score, hard, soft, role, strengths, gaps, suggestions) {
   ].join("\n");
 }
 
+function calculateFinalScore(ruleScore, semanticScore) {
+  return Math.round((ruleScore * 0.7) + (semanticScore * 0.3));
+}
+
+async function analyzeSemanticMatch(resumeText, jobText) {
+  const extractor = await getSemanticModel();
+  const [resumeVector, jobVector] = await Promise.all([
+    embedText(extractor, resumeText),
+    embedText(extractor, jobText)
+  ]);
+  const similarity = cosineSimilarity(resumeVector, jobVector);
+  const score = Math.max(0, Math.min(100, Math.round(similarity * 100)));
+  return {
+    score,
+    summary: semanticSummaryText(score)
+  };
+}
+
+async function getSemanticModel() {
+  if (!semanticModelPromise) {
+    semanticModelPromise = import(AI_MODEL_CDN).then(async ({ pipeline, env }) => {
+      env.allowLocalModels = false;
+      return pipeline("feature-extraction", AI_MODEL_ID);
+    });
+  }
+  return semanticModelPromise;
+}
+
+async function embedText(extractor, text) {
+  const compactText = text.slice(0, 1800);
+  const output = await extractor(compactText, { pooling: "mean", normalize: true });
+  return Array.from(output.data);
+}
+
+function cosineSimilarity(a, b) {
+  let dot = 0;
+  let aMagnitude = 0;
+  let bMagnitude = 0;
+  for (let index = 0; index < Math.min(a.length, b.length); index += 1) {
+    dot += a[index] * b[index];
+    aMagnitude += a[index] * a[index];
+    bMagnitude += b[index] * b[index];
+  }
+  if (!aMagnitude || !bMagnitude) return 0;
+  return dot / (Math.sqrt(aMagnitude) * Math.sqrt(bMagnitude));
+}
+
+function semanticSummaryText(score) {
+  if (score >= 82) return "语义高度接近，简历经历和岗位职责在表达层面已经比较一致。";
+  if (score >= 68) return "语义匹配良好，建议继续补充岗位要求中的具体证据和量化结果。";
+  if (score >= 50) return "语义存在一定重合，但简历需要更明确地贴近岗位职责。";
+  return "语义距离较大，建议优先补充与岗位核心任务直接相关的项目经历。";
+}
+
+function renderSemantic(semantic) {
+  if (!semantic) return;
+  setSemanticState(`${semantic.score}%`, "AI 语义分析完成", semantic.summary);
+}
+
+function setSemanticState(value, status, summary) {
+  semanticValue.textContent = value;
+  semanticStatus.textContent = status;
+  semanticSummary.textContent = summary;
+}
+
+async function handlePdfUpload(input, targetTextarea, label) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.type !== "application/pdf") {
+    targetTextarea.value = `${label}上传失败：请选择 PDF 文件。`;
+    return;
+  }
+
+  const previousPlaceholder = targetTextarea.placeholder;
+  targetTextarea.placeholder = `正在解析${label} PDF...`;
+  try {
+    const text = await extractPdfText(file);
+    targetTextarea.value = text || `${label} PDF 没有提取到可读文本。`;
+  } catch (error) {
+    console.error(error);
+    targetTextarea.value = `${label} PDF 解析失败。请复制文本粘贴，或换一个可复制文字的 PDF。`;
+  } finally {
+    targetTextarea.placeholder = previousPlaceholder;
+    input.value = "";
+  }
+}
+
+async function extractPdfText(file) {
+  if (!window.pdfjsLib) throw new Error("PDF.js 未加载");
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+  const buffer = await file.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
+  const pages = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const pageText = content.items.map((item) => item.str).join(" ");
+    pages.push(pageText);
+  }
+  return pages.join("\n\n").replace(/\s+/g, " ").trim();
+}
+
 async function copyLatestReport() {
-  if (!latestReport) analyze();
+  if (!latestReport) await analyze();
   if (!latestReport) return;
   if (navigator.clipboard) {
     await navigator.clipboard.writeText(latestReport);
@@ -250,8 +391,8 @@ async function copyLatestReport() {
   }, 1300);
 }
 
-function downloadLatestReport() {
-  if (!latestReport) analyze();
+async function downloadLatestReport() {
+  if (!latestReport) await analyze();
   if (!latestReport) return;
   const blob = new Blob([latestReport], { type: "text/plain" });
   const url = URL.createObjectURL(blob);

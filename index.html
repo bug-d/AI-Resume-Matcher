@@ -9,10 +9,9 @@
   <body>
     <header class="topbar">
       <div>
-        <p class="eyebrow">作品集项目</p>
         <h1>AI 简历匹配器</h1>
       </div>
-      <div class="status-pill">本地分析</div>
+      <div class="status-pill">本地 AI + PDF</div>
     </header>
 
     <main class="app-shell">
@@ -23,7 +22,11 @@
               <h2>简历</h2>
               <p>粘贴你想评估的简历或个人介绍。</p>
             </div>
-            <button class="ghost-button" id="loadSample" type="button">载入示例</button>
+            <div class="button-row">
+              <label class="file-button" for="resumePdfInput">上传 PDF</label>
+              <input id="resumePdfInput" class="file-input" type="file" accept="application/pdf">
+              <button class="ghost-button" id="loadSample" type="button">载入示例</button>
+            </div>
           </div>
           <textarea id="resumeInput" spellcheck="true" placeholder="在这里粘贴简历文本..."></textarea>
         </div>
@@ -34,7 +37,11 @@
               <h2>岗位描述</h2>
               <p>粘贴目标岗位的职责和要求。</p>
             </div>
-            <button class="primary-button" id="analyzeButton" type="button">分析匹配度</button>
+            <div class="button-row">
+              <label class="file-button" for="jobPdfInput">上传 PDF</label>
+              <input id="jobPdfInput" class="file-input" type="file" accept="application/pdf">
+              <button class="primary-button" id="analyzeButton" type="button">分析匹配度</button>
+            </div>
           </div>
           <textarea id="jobInput" spellcheck="true" placeholder="在这里粘贴岗位描述..."></textarea>
         </div>
@@ -69,6 +76,15 @@
           </div>
         </article>
 
+        <article class="panel ai-panel">
+          <h2>AI 语义匹配</h2>
+          <div class="ai-score-row">
+            <strong id="semanticValue">--</strong>
+            <span id="semanticStatus">点击分析后加载免费本地 AI 模型。</span>
+          </div>
+          <p id="semanticSummary">AI 模型会在浏览器中比较简历和岗位描述的语义接近度。</p>
+        </article>
+
         <article class="panel list-panel">
           <h2>匹配优势</h2>
           <ul id="strengthList"></ul>
@@ -92,6 +108,7 @@
       </section>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
