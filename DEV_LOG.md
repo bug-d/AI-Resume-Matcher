@@ -17,3 +17,11 @@
 - 命令：`node --check script.js`；`Invoke-WebRequest -UseBasicParsing http://localhost:4173/index.html`；`Invoke-WebRequest -UseBasicParsing http://localhost:4173/script.js`；`Select-String` 检查常见英文 UI 残留。
 - 验证：JavaScript 语法检查通过。HTML 和 JS 在本地静态服务下均返回 HTTP 200。常见英文 UI 文案已替换，保留代码变量名和技术名词。
 - 后续：提交中文化改动后继续准备 GitHub 发布。
+
+## 2026-07-06 - 配置 GitHub 仓库
+
+- 请求：将项目推送到 `https://github.com/bug-d/AI-Resume-Matcher`。
+- 变更：记录 GitHub 仓库地址，准备将本地分支推送为 `main`。
+- 命令：待执行。
+- 验证：待执行。
+- 后续：推送成功后启用 GitHub Pages。
