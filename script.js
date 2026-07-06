@@ -394,9 +394,11 @@ async function handleImageUpload(input, targetTextarea, label) {
 
   const previousPlaceholder = targetTextarea.placeholder;
   targetTextarea.placeholder = `正在识别${label}图片...`;
-  targetTextarea.value = "正在进行图片 OCR，首次加载识别模型可能需要一点时间...";
+  targetTextarea.value = "正在优化图片清晰度...";
   try {
-    const text = await extractImageText(file);
+    const text = await extractImageText(file, (message) => {
+      targetTextarea.value = message;
+    });
     targetTextarea.value = text || `${label}图片没有识别到可读文本。`;
   } catch (error) {
     console.error(error);
@@ -407,10 +409,129 @@ async function handleImageUpload(input, targetTextarea, label) {
   }
 }
 
-async function extractImageText(file) {
+async function extractImageText(file, onProgress) {
   if (!window.Tesseract) throw new Error("Tesseract.js 未加载");
-  const result = await window.Tesseract.recognize(file, "chi_sim+eng");
-  return result.data.text.replace(/\s+/g, " ").trim();
+  const preparedImage = await prepareImageForOcr(file);
+  onProgress("正在加载 OCR 模型，首次使用可能需要一点时间...");
+  const result = await window.Tesseract.recognize(preparedImage, "chi_sim+eng", {
+    logger: (event) => {
+      if (event.status === "recognizing text" && typeof event.progress === "number") {
+        onProgress(`正在识别岗位描述图片... ${Math.round(event.progress * 100)}%`);
+      } else if (event.status) {
+        onProgress(`OCR 准备中：${event.status}`);
+      }
+    }
+  });
+  return cleanOcrText(result.data.text);
+}
+
+async function prepareImageForOcr(file) {
+  const image = await loadImage(file);
+  const scale = getOcrScale(image.width, image.height);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(image.width * scale);
+  canvas.height = Math.round(image.height * scale);
+
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const grayscale = [];
+
+  for (let index = 0; index < data.length; index += 4) {
+    const gray = (data[index] * 0.299) + (data[index + 1] * 0.587) + (data[index + 2] * 0.114);
+    grayscale.push(gray);
+  }
+
+  const threshold = calculateOtsuThreshold(grayscale);
+  for (let index = 0, pixel = 0; index < data.length; index += 4, pixel += 1) {
+    const contrasted = clamp(((grayscale[pixel] - 128) * 1.45) + 128);
+    const value = contrasted > threshold ? 255 : 0;
+    data[index] = value;
+    data[index + 1] = value;
+    data[index + 2] = value;
+    data[index + 3] = 255;
+  }
+
+  context.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const url = URL.createObjectURL(file);
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("图片加载失败"));
+    };
+    image.src = url;
+  });
+}
+
+function getOcrScale(width, height) {
+  const longestSide = Math.max(width, height);
+  if (longestSide < 900) return 3;
+  if (longestSide < 1400) return 2.4;
+  if (longestSide < 2200) return 1.8;
+  return 1.2;
+}
+
+function calculateOtsuThreshold(values) {
+  const histogram = new Array(256).fill(0);
+  values.forEach((value) => {
+    histogram[Math.round(clamp(value))] += 1;
+  });
+
+  const total = values.length;
+  let sum = 0;
+  for (let index = 0; index < 256; index += 1) sum += index * histogram[index];
+
+  let backgroundWeight = 0;
+  let backgroundSum = 0;
+  let bestVariance = 0;
+  let threshold = 150;
+
+  for (let index = 0; index < 256; index += 1) {
+    backgroundWeight += histogram[index];
+    if (backgroundWeight === 0) continue;
+    const foregroundWeight = total - backgroundWeight;
+    if (foregroundWeight === 0) break;
+
+    backgroundSum += index * histogram[index];
+    const backgroundMean = backgroundSum / backgroundWeight;
+    const foregroundMean = (sum - backgroundSum) / foregroundWeight;
+    const betweenVariance = backgroundWeight * foregroundWeight * ((backgroundMean - foregroundMean) ** 2);
+
+    if (betweenVariance > bestVariance) {
+      bestVariance = betweenVariance;
+      threshold = index;
+    }
+  }
+
+  return threshold;
+}
+
+function clamp(value) {
+  return Math.max(0, Math.min(255, value));
+}
+
+function cleanOcrText(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n")
+    .trim();
 }
 
 async function extractPdfText(file) {
