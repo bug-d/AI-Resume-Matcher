@@ -11,7 +11,7 @@
       <div>
         <h1>AI 简历匹配器</h1>
       </div>
-      <div class="status-pill">本地 AI + PDF</div>
+      <div class="status-pill">本地 AI + PDF/OCR</div>
     </header>
 
     <main class="app-shell">
@@ -38,8 +38,8 @@
               <p>粘贴目标岗位的职责和要求。</p>
             </div>
             <div class="button-row">
-              <label class="file-button" for="jobPdfInput">上传 PDF</label>
-              <input id="jobPdfInput" class="file-input" type="file" accept="application/pdf">
+              <label class="file-button" for="jobImageInput">上传图片</label>
+              <input id="jobImageInput" class="file-input" type="file" accept="image/png,image/jpeg,image/webp">
               <button class="primary-button" id="analyzeButton" type="button">分析匹配度</button>
             </div>
           </div>
@@ -105,10 +105,19 @@
           </div>
           <ol id="suggestionList"></ol>
         </article>
+
+        <article class="panel greeting-panel">
+          <div class="panel-header compact">
+            <h2>打招呼语</h2>
+            <button class="ghost-button" id="copyGreeting" type="button">复制</button>
+          </div>
+          <p id="greetingText">完成分析后会生成一段适合投递或私信招聘方的开场白。</p>
+        </article>
       </section>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
